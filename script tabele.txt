@@ -1,0 +1,98 @@
+create sequence seq_pacienti_ag;
+create table pacienti_ag
+(Id_Pacient Number primary key,
+Nume varchar2(50),
+Prenume varchar2(50),
+CNP number(13),
+Data_nasterii date,
+Sex char(1),
+Telefon number(12),
+adresa varchar2(50);
+
+insert into pacienti_ag values(seq_pacineti_ag.NEXTVAL,'Constatntinescu','Mihai',123456789,'03-03-2003','M',123456789,'Suceava');
+insert into pacienti_ag values (seq_pacienti_ag.NEXTVAL, 'Florin', 'Florinescu', 3546786787, '01-12-2002','M',2325788,'Cluj');
+insert into pacienti_ag values (seq_pacienti_ag.NEXTVAL, 'Mihailescu', 'Marinela', 377786787, '30-11-2000','F',232995788,'Brasov');
+
+create table analize_ag
+(Id_Analiza Varchar2(10) primary key,
+Denumire varchar2(50),
+Tip varchar2(50),
+Pret NUMBER
+);
+INSERT INTO analize_ag (Id_analiza, denumire, tip, pret)
+VALUES ('HLG', 'Hemograma cu formula leucocitara', 'Sange venos', 39);
+insert into analize_ag VALUES ('CrS', 'Creatinina serica', 'Sange venos', 19.00);
+insert into analize_ag VALUES ('CaS', 'Calciu seric', 'Sange venos', 15.00);
+
+CREATE SEQUENCE seq_laboratoare_ag;
+create table Laboratoare_ag
+(Id_Laborator NUMBER primary key,
+Nume_Laborator varchar2(50),
+Adresa varchar2(50),
+Telefon Number(12)
+);
+
+INSERT INTO laboratoare_ag (Id_Laborator, Nume_Laborator, adresa, telefon)
+VALUES (seq_laboratoare_ag.NEXTVAL, 'Stefan cel Mare', 'Suceava', 7567788991);
+INSERT INTO laboratoare_ag (Id_Laborator, Nume_Laborator, adresa, telefon)
+VALUES (seq_laboratoare_ag.NEXTVAL, '1 Mai', 'Bucuresti', 7567700091);
+INSERT INTO laboratoare_ag (Id_Laborator, Nume_Laborator, adresa, telefon)
+VALUES (seq_laboratoare_ag.NEXTVAL, 'Mama si copilul', 'Galati', 7567781081);
+
+
+create table personal_medical_ag
+(Id_Personal Varchar(10) primary key,
+Nume varchar2(50),
+Prenume varchar2(50),
+Functie varchar2(50),
+Departament varchar2(50),
+Id_Laborator Number constraint nn_personal_laboratoare_ag not null
+constraint fk_personal_laboratoare_ag references laboratoare_ag(id_laborator)
+);
+
+INSERT INTO personal_medical_ag 
+VALUES ('Med1', 'Stefanescu', 'Stefan', 'Medic Primar', 'Laborator Clinic', 1);
+INSERT INTO personal_medical_ag 
+VALUES ('Med2', 'Verde', 'Floarea', 'Medic Primar', 'Laborator Clinic', 22);
+INSERT INTO personal_medical_ag 
+VALUES ('Asist1', 'Rosu', 'Carmen', 'Asistent medical', 'Generalist', 22);
+INSERT INTO personal_medical_ag 
+VALUES ('Med3', 'Sortescu', 'Sorin', 'Medic Specialist', 'Anatomie patologica', 1);
+
+create sequence seq_buletin_analize_ag;
+create table buletin_analize_ag
+(Id_Buletin NUMBER primary key,
+Data_recoltarii Date,
+Data_Rezultate date,
+Id_Pacient number constraint nn_buletin_pacienti_ag not null
+constraint fk_buletin_pacienti_ag references pacienti_ag(id_pacient),
+Id_Personal varchar2(10) constraint nn_buletin_personal_ag not null
+constraint fk_buletin_personal_ag references personal_medical_ag(id_personal)
+);
+insert into buletin_analize_ag values(seq_buletin_analize_ag.NEXTVAL, to_date('02-12-2009','DD-MM-YYYY'),to_date('04-12-2009','DD-MM-YYYY'),1,'Med1');
+insert into buletin_analize_ag values(seq_buletin_analize_ag.NEXTVAL, to_date('15-10-2010','DD-MM-YYYY'),to_date('16-10-2010','DD-MM-YYYY'),21,'Med1');
+insert into buletin_analize_ag values(seq_buletin_analize_ag.NEXTVAL, to_date('20-11-2011','DD-MM-YYYY'),to_date('20-11-2011','DD-MM-YYYY'),23,'Med3');
+insert into buletin_analize_ag values(seq_buletin_analize_ag.NEXTVAL, '19-11-2011','21-11-2011',23,'Med3');
+
+create sequence seq_rezultate_ag;
+create table Rezultate_ag (
+Id_Buletin number constraint nn_rezultate_buletin_ag not null
+constraint fk_rezultate_buletin_ag references buletin_analize_ag(id_buletin),
+Id_Analiza varchar2(10) constraint nn_rezultate_analize_ag not null
+constraint fk_rezultate_analize_ag references analize_ag(id_analiza),
+Rezultat_Analiza number,
+Comentarii varchar2(50),
+Id_Rezultat NUMBER primary key);
+insert into Rezultate_ag values(1, 'HLG', 6.77, 'Se incadreaza intre valorile normale',seq_rezultate_ag.nextval);
+insert into Rezultate_ag values(1, 'CrS', 1.03, 'Peste valorile normale',seq_rezultate_ag.nextval);
+insert into Rezultate_ag values(22, 'CaS', 9.8, 'Se incadreaza intre valorile normale',seq_rezultate_ag.nextval);
+
+create table analize_personal_ag
+(Id_Analiza varchar2(10) constraint nn_anali_pers_analize_ag not null
+constraint fk_anali_pers_analize_ag references analize_ag(id_analiza),
+Id_Personal varchar2(10) constraint nn_anali_pers_personal_ag not null
+constraint fk_anali_pers_personal_ag references personal_medical_ag(id_personal)
+);
+insert into analize_personal_ag values('HLG','Med1');
+insert into analize_personal_ag values('CrS','Asist1');
+insert into analize_personal_ag values('CaS','Asist1');
